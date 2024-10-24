@@ -77,3 +77,17 @@ Commands ran on the `kfkclient` host
 ```bash
 kafka-topics --bootstrap-server <broker>:<port> --command-config /opt/client/client.properties --list
 ```
+
+## Solution
+
+After observing the error
+
+![alt text](<./assets/Screenshot 2024-10-24 at 10.35.26 AM.png>)
+
+Look for server.properties of kafka2 and kafka3 we need to correct the password from "b0b-secret" to "bob-secret"
+
+![alt text](<./assets/Screenshot 2024-10-24 at 11.00.19 AM.png>)
+
+Now it is working
+
+![alt text](<./assets/Screenshot 2024-10-24 at 10.52.46 AM.png>)
