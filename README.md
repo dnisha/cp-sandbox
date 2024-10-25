@@ -79,3 +79,94 @@ The error message seen in the console producer and consumer for `europe_payments
 [2023-07-26 12:18:20,411] ERROR Error when sending message to topic europe_payments with key: null, value: 6 bytes with error: (org.apache.kafka.clients.producer.internals.ErrorLoggingCallback)
 org.apache.kafka.common.errors.TopicAuthorizationException: Not authorized to access topics: [europe_payments]
 ```
+## Solution
+This document outlines the steps to generate certificates, keystores, truststores, and configure Kafka for the specified client. For the scripts and resources, refer to the repository: cp-sandbox-solutions.
+
+#### Steps
+ 
+## 1) Generate Certificates and Keystores
+
+- Generate all necessary certificates, keystores, and truststores from script in the repo - https://github.com/dnisha/cp-sandbox-solutions
+
+- Place them in their corresponding directories.
+
+## 2) Configure Kafka Client
+
+- Add the following line to the server.properties of kafka1, kafka2, kafka3:
+
+```
+broker.user=User:kafkaclient1
+```
+
+- Generate a certificate, keystore, and truststore for kafkaclient1 and place them in the client directory.
+
+## 3) Create Configuration Files
+
+- Inside the client folder, create the following properties files:
+
+    - admin.properties
+
+    - client.properties
+
+- Use the admin.properties configuration file to apply ACL for the topic europe_payments.
+
+```
+sasl.mechanism=PLAIN
+
+security.protocol=SASL_PLAINTEXT
+
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
+  username="bob" \
+  password="bob-secret";
+```
+
+- Use the client.properties to produce and consume messages.
+
+```
+security.protocol=SSL
+ssl.truststore.location=/opt/client/kafka.kafkaclient1.truststore.jks
+ssl.truststore.password=kafka-broker
+ssl.keystore.location=/opt/client/kafka.kafkaclient1.keystore.jks
+ssl.keystore.password=kafka-broker
+ssl.key.password=kafka-broker
+```
+
+## 4) Start Docker Compose
+
+- Run the following command to start the Docker containers:
+
+```
+docker-compose up -d
+```
+
+## 5) Set Access Control List (ACL)
+
+- Log into the kfkclient container:
+
+```
+docker exec -it kfkclient bash
+```
+
+- Execute the following command to set the ACL:
+
+```
+/root/confluent-7.4.1/bin/kafka-acls --bootstrap-server kafka1:19092 --add --allow-principal User:kafkaclient1 --command-config /opt/client/admin.properties --allow-host kfkclient --operation WRITE --operation READ --topic europe_payments
+```
+
+## 6) Produce a Message
+
+- Use the following command to produce a message:
+
+```
+/root/confluent-7.4.1/bin/kafka-console-producer --bootstrap-server kafka1:19093 --producer.config /opt/client/client.properties --topic europe_payments
+```
+
+## 7) Consume a Message
+
+- Execute the following command to consume messages:
+
+```
+/root/confluent-7.4.1/bin/kafka-console-consumer --bootstrap-server kafka1:19093 --consumer.config /opt/client/client.properties --from-beginning --topic europe_payments
+```
+
+![alt text](<./assets/Screenshot 2024-10-25 at 1.32.43 PM.png>)
