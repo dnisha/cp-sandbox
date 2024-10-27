@@ -77,3 +77,33 @@ The error message seen in the console producer and consumer fro `domestic_orders
 WARN [Producer clientId=console-producer] Connection to node 2 (kafka2/172.20.0.6:19093) could not be established. Broker may not be available. (org.apache.kafka.clients.NetworkClient)
 ```
 
+## Solution
+
+After producing and consuming message 
+
+![alt text](<./assets/Screenshot 2024-10-27 at 10.36.51 PM.png>)
+
+The logs states that there is a connectivity issue between kafka2
+
+
+After checking kafka2 server.properties we found that port are difined different for CLIENT protocal in listner and advertised.listners 
+
+```
+advertised.listeners=CLIENT://kafka2:29092,BROKER://kafka2:29093,TOKEN://kafka2:29094
+```
+
+The ports specified in listeners and advertised.listeners should generally be the same for each protocol. This ensures that clients can connect to the correct endpoint without confusion.
+
+For example:
+
+If you have 
+```
+listeners=CLIENT://:29092, then advertised.listeners=CLIENT://kafka2:29092 is appropriate.
+```
+
+If the ports differ, clients may not be able to connect properly, leading to connection issues. So, while the hostnames or IPs can differ, the ports should match for the same listener type.
+
+![alt text](<./assets/Screenshot 2024-10-27 at 11.05.50 PM.png>)
+
+## Result
+![alt text](<./assets/Screenshot 2024-10-27 at 10.40.46 PM.png>)
