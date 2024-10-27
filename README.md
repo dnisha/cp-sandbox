@@ -86,3 +86,41 @@ org.apache.kafka.common.config.ConfigException: Invalid value javax.net.ssl.SSLH
 	at kafka.server.KafkaServer.startup(KafkaServer.scala:528)
 	at kafka.Kafka$.main(Kafka.scala:114)
 ```
+# Solution
+
+## Troubleshooting steps
+
+Check the kafka broker logs 
+
+```
+docker logs kafka1
+```
+![alt text](<./assets/Screenshot 2024-10-27 at 11.17.26 AM.png>)
+
+Lets check the keystore and truststore and check for validity and CN
+
+```
+keytool -list -v -keystore kafka.server.keystore.jks
+```
+
+![alt text](<./assets/Screenshot 2024-10-27 at 11.17.13 AM.png>)
+
+![alt text](<./assets/Screenshot 2024-10-27 at 11.16.59 AM.png>)
+
+## Follow scenario6 steps to generate keystore , truststore and CA
+
+Also change configuration in server.properties
+
+```
+confluent.metadata.topic.replication.factor=3
+```
+![alt text](<./assets/Screenshot 2024-10-27 at 12.19.27 PM.png>)
+
+Change keystore password
+
+```
+ssl.keystore.password=kafka-broker
+confluent.metrics.reporter.ssl.keystore.password=kafka-broker
+```
+![alt text](<./assets/Screenshot 2024-10-27 at 12.20.26 PM.png>)
+![alt text](<./assets/Screenshot 2024-10-27 at 12.19.37 PM.png>)
