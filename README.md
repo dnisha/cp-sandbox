@@ -70,3 +70,36 @@ kafka-console-consumer --bootstrap-server kafka1:19092 --consumer.config /opt/cl
 ```
 
 The client is using SASL/PLAIN over PLAINTEXT with the user `bob`
+
+
+## Solution
+After bringing up the container check logs SSL handshake is failing lets check the truststore , keystore . The certificates is expired
+
+Note - Refer scenario6 for the steps of generating certificates , keystore and truststore.
+
+![alt text](<./assets/Screenshot 2024-10-29 at 4.01.27 AM.png>)
+
+Comment or remove user:root , entrypoint and cap_add . The script scripts/kafka1.sh is droping triffic to port 19092 becase of script in entrypoint
+
+```
+#!/bin/bash
+
+yum install iptables -y
+
+iptables -A INPUT -p tcp --dport 19092 -j DROP
+
+su - appuser
+
+$@
+```
+![alt text](<./assets/Screenshot 2024-10-29 at 10.10.56 AM.png>)
+
+Afer removing those run:-
+
+```
+docker-compose up -d
+```
+
+And start publishing/consuming the data to the topic inventory_changes
+
+![alt text](<Screenshot 2024-10-29 at 10.17.11 AM.png>)
