@@ -81,7 +81,7 @@ services:
     volumes:
     - ./kafka2:/etc/kafka
     - ./jmx-exporter:/usr/share/jmx-exporter
-    - kafka2data:/var/lib/kafka/data
+    # - kafka2data:/var/lib/kafka/data
     deploy:
       resources:
         limits:
@@ -181,7 +181,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.1"
+          cpus: "1.5"
           memory: 256M
 
   openldap:

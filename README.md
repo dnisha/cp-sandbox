@@ -68,3 +68,32 @@ kafka-console-producer --bootstrap-server kafka1:19092 --producer.config /opt/cl
 ```
 
 The client is using SASL/PLAIN over PLAINTEXT with the user `bob` and acks=1
+
+
+## Solution
+
+Regenerate all keystore, truststore and certificates refer scenario6
+
+Remove kafka2data:/var/lib/kafka/data from kafka2 in docker-compose.yml, since there is a volume size contraint
+
+```
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+    kafka2data:
+      driver_opts:
+        type: tmpfs
+        o: size=3145728
+        device: tmpfs
+```
+
+![alt text](<./assets/Screenshot 2024-10-29 at 11.47.23 AM.png>)
+
+Run below command it should work.
+```
+docker-compose up -d
+```
+
+## Result
+
+![alt text](<./assets/Screenshot 2024-10-29 at 11.46.59 AM.png>)
