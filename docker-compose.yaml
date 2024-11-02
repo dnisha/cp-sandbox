@@ -28,11 +28,12 @@ services:
       EXTRA_ARGS: -javaagent:/usr/share/jmx-exporter/jmx_prometheus_javaagent-0.18.0.jar=9101:/usr/share/jmx-exporter/kafka_broker.yml
     volumes:
     - ./kafka1:/etc/kafka
+    - ./kafka1/data:/var/lib/kafka/data
     - ./jmx-exporter:/usr/share/jmx-exporter
     deploy:
       resources:
         limits:
-          cpus: "1.5"
+          cpus: "1.7"
           memory: 1536M
 
   kafka2:
@@ -46,11 +47,12 @@ services:
       EXTRA_ARGS: -javaagent:/usr/share/jmx-exporter/jmx_prometheus_javaagent-0.18.0.jar=9102:/usr/share/jmx-exporter/kafka_broker.yml
     volumes:
     - ./kafka2:/etc/kafka
+    - ./kafka2/data:/var/lib/kafka/data
     - ./jmx-exporter:/usr/share/jmx-exporter
     deploy:
       resources:
         limits:
-          cpus: "1.5"
+          cpus: "1.7"
           memory: 1536M
   
   kafka3:
@@ -64,11 +66,12 @@ services:
       EXTRA_ARGS: -javaagent:/usr/share/jmx-exporter/jmx_prometheus_javaagent-0.18.0.jar=9103:/usr/share/jmx-exporter/kafka_broker.yml
     volumes:
     - ./kafka3:/etc/kafka
+    - ./kafka3/data:/var/lib/kafka/data
     - ./jmx-exporter:/usr/share/jmx-exporter
     deploy:
       resources:
         limits:
-          cpus: "1.5"
+          cpus: "1.7"
           memory: 1536M
 
   schema-registry:
@@ -158,9 +161,9 @@ services:
       - kafka3
     command: kafka-producer-perf-test \
               --topic app_telemetry \
-              --num-records 99999999999 \
-              --throughput -1 \
-              --record-size 10000 \
+              --num-records 10000 \
+              --throughput 1000 \
+              --record-size 1024 \
               --producer.config  /opt/client/client.properties
     volumes:
     - ./producer/client.properties:/opt/client/client.properties
@@ -183,9 +186,9 @@ services:
       - kafka3
     command: kafka-producer-perf-test \
               --topic debit_transactions \
-              --num-records 99999999999 \
-              --throughput -1 \
-              --record-size 10000 \
+              --num-records 10000 \
+              --throughput 1000 \
+              --record-size 1024 \
               --producer.config  /opt/client/client.properties
     volumes:
     - ./producer/client.properties:/opt/client/client.properties
@@ -208,9 +211,9 @@ services:
       - kafka3
     command: kafka-producer-perf-test \
               --topic credit_transactions \
-              --num-records 99999999999 \
-              --throughput -1 \
-              --record-size 10000 \
+              --num-records 10000 \
+              --throughput 1000 \
+              --record-size 1024 \
               --producer.config  /opt/client/client.properties
     volumes:
     - ./producer/client.properties:/opt/client/client.properties
@@ -233,9 +236,9 @@ services:
       - kafka3
     command: kafka-producer-perf-test \
               --topic loan_payments \
-              --num-records 99999999999 \
-              --throughput -1 \
-              --record-size 10000 \
+              --num-records 10000 \
+              --throughput 1000 \
+              --record-size 1024 \
               --producer.config  /opt/client/client.properties
     volumes:
     - ./producer/client.properties:/opt/client/client.properties
@@ -258,9 +261,9 @@ services:
       - kafka3
     command: kafka-producer-perf-test \
               --topic new_accounts \
-              --num-records 99999999999 \
-              --throughput -1 \
-              --record-size 10000 \
+              --num-records 10000 \
+              --throughput 1000 \
+              --record-size 1024 \
               --producer.config  /opt/client/client.properties
     volumes:
     - ./producer/client.properties:/opt/client/client.properties
@@ -283,9 +286,9 @@ services:
       - kafka3
     command: kafka-producer-perf-test \
               --topic business_requests \
-              --num-records 99999999999 \
-              --throughput -1 \
-              --record-size 10000 \
+              --num-records 10000 \
+              --throughput 1000 \
+              --record-size 1024 \
               --producer.config  /opt/client/client.properties
     volumes:
     - ./producer/client.properties:/opt/client/client.properties
@@ -308,9 +311,9 @@ services:
       - kafka3
     command: kafka-producer-perf-test \
               --topic international_transactions \
-              --num-records 99999999999 \
-              --throughput -1 \
-              --record-size 10000 \
+              --num-records 10000 \
+              --throughput 1000 \
+              --record-size 1024 \
               --producer.config  /opt/client/client.properties
     volumes:
     - ./producer/client.properties:/opt/client/client.properties
@@ -333,9 +336,9 @@ services:
       - kafka3
     command: kafka-producer-perf-test \
               --topic account_audit \
-              --num-records 99999999999 \
-              --throughput -1 \
-              --record-size 10000 \
+              --num-records 10000 \
+              --throughput 1000 \
+              --record-size 1024 \
               --producer.config  /opt/client/client.properties
     volumes:
     - ./producer/client.properties:/opt/client/client.properties
@@ -358,9 +361,9 @@ services:
       - kafka3
     command: kafka-producer-perf-test \
               --topic fraud_detection \
-              --num-records 99999999999 \
-              --throughput -1 \
-              --record-size 10000 \
+              --num-records 10000 \
+              --throughput 1000 \
+              --record-size 1024 \
               --producer.config  /opt/client/client.properties
     volumes:
     - ./producer/client.properties:/opt/client/client.properties

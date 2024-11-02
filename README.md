@@ -74,3 +74,103 @@ docker-compose up -d --force-recreate <service_name> # docker-compose up -d --fo
 The customer notices a red color for one of the panels in the control-center. Troubleshoot the cause for the red color in the control-center and propose a solution to fix the issue.
 
 ![img](control-center.png)
+
+
+## Solution
+
+Renew all ssl certificates , truststore and keystore refer scenario6.
+
+
+Check memory and cpu utilization of brokers
+
+```
+docker stats kafka1
+```
+
+![alt text](<Screenshot 2024-11-02 at 11.19.42 PM.png>)
+
+Use below command to check for kafka topic configuration :-
+```
+cat scripts/start.sh | base64 -d;
+```
+
+![alt text](<./assets/Screenshot 2024-11-02 at 5.16.56 PM.png>)
+
+Adjust the partition accourding to the resources avilable
+
+```
+echo -n '#!/bin/bash
+
+until nc -z kafka1 19092
+do
+        echo "Waiting for Kakfa to be ready"
+        sleep 5
+done
+
+cat <<EOF >>/tmp/client.properties
+sasl.mechanism=PLAIN
+
+security.protocol=SASL_PLAINTEXT
+
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
+  username="bob" \
+  password="bob-secret";
+EOF
+
+kafka-topics --bootstrap-server kafka1:19092 --command-config /tmp/client.properties --create --topic debit_transactions \
+  --if-not-exists --replica-assignment 2:1,2:1  \
+  --config min.insync.replicas=1
+
+kafka-topics --bootstrap-server kafka2:29092 --command-config /tmp/client.properties --create --topic credit_transactions \
+  --if-not-exists --replica-assignment 2,2  \
+  --config min.insync.replicas=1
+
+kafka-topics --bootstrap-server kafka3:39092 --command-config /tmp/client.properties --create --topic loan_payments \
+  --if-not-exists --replica-assignment 2:1,2:1 \
+  --config min.insync.replicas=1
+
+kafka-topics --bootstrap-server kafka1:19092 --command-config /tmp/client.properties --create --topic new_accounts \
+  --if-not-exists --replica-assignment 2,2 \
+  --config min.insync.replicas=1
+
+kafka-topics --bootstrap-server kafka2:29092 --command-config /tmp/client.properties --create --topic fraud_detection \
+  --if-not-exists --replica-assignment 2,2  \
+  --config min.insync.replicas=1
+
+kafka-topics --bootstrap-server kafka2:29092 --command-config /tmp/client.properties --create --topic business_requests \
+  --if-not-exists --replica-assignment 2:1,2:1  \
+  --config min.insync.replicas=1
+
+kafka-topics --bootstrap-server kafka3:39092 --command-config /tmp/client.properties --create --topic account_audit \
+  --if-not-exists --replica-assignment 2,2 \
+  --config min.insync.replicas=1
+
+kafka-topics --bootstrap-server kafka3:39092 --command-config /tmp/client.properties --create --topic clickstream \
+  --if-not-exists --replica-assignment 2,2 \
+  --config min.insync.replicas=1
+
+# for x in {1..50}; do echo $x; done | kafka-console-producer --bootstrap-server kafka1:19092 --producer.config /tmp/client.properties --topic account_audit
+
+kafka-topics --bootstrap-server kafka1:19092 --command-config /tmp/client.properties --create --topic international_transactions \
+  --if-not-exists --replica-assignment 2,1 \
+  --config min.insync.replicas=1
+
+kafka-topics --bootstrap-server kafka2:29092 --command-config /tmp/client.properties --create --topic app_telemetry \
+  --if-not-exists --replica-assignment 2,1 \
+  --config min.insync.replicas=1' | base64 > scripts/start.sh
+```
+
+Use above command to configure the kafka-topic , i have decresed the partitions because of resource contraint
+
+
+Mount the volume to local to all brokers.
+
+```
+./kafka1/data:/var/lib/kafka/data
+```
+
+![alt text](<./assets/Screenshot 2024-11-02 at 11.27.48 PM.png>)
+
+Rampdown the producer performance according to system requirement.
+
+![alt text](<./assets/Screenshot 2024-11-02 at 11.27.57 PM.png>)
